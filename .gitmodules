@@ -1,0 +1,3 @@
+[submodule "partC/partC/patientor"]
+	path = partC/partC/patientor
+	url = https://github.com/Pall00/patientor.git
