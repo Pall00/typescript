@@ -6,7 +6,7 @@ const getPatients = (): Patient[] => {
     return patients;
 };
 
-const getPublicPatients = (): Omit<Patient, 'ssn'>[] => {
+const getPublicPatients = (): Omit<Patient, 'ssn' | 'entries'>[] => {
     return patients.map(({ id, name, dateOfBirth, gender, occupation }) => ({
         id,
         name,
@@ -17,17 +17,24 @@ const getPublicPatients = (): Omit<Patient, 'ssn'>[] => {
 };
 
 const addPatient = (newPatient: NewPatient): Patient => {
-    const patient = {
+    const patient: Patient = {
         id: uuid(),
-        ...newPatient
+        ...newPatient,
+        entries: [], 
     };
 
     patients.push(patient);
     return patient;
 };
 
+
+const getPatientById = (id: string): Patient | undefined => {
+    return patients.find((patient) => patient.id === id);
+};
+
 export default {
     getPatients,
     getPublicPatients,
-    addPatient
+    addPatient,
+    getPatientById, 
 };

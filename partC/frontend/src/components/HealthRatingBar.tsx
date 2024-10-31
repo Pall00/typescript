@@ -14,7 +14,7 @@ const StyledRating = styled(Rating)({
   },
   iconHover: {
     color: "#ff3d47",
-  }
+  },
 });
 
 const HEALTHBAR_TEXTS = [

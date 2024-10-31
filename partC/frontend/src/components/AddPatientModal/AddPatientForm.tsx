@@ -1,124 +1,62 @@
-import { useState, SyntheticEvent } from "react";
+// AddPatientForm.tsx
 
-import {  TextField, InputLabel, MenuItem, Select, Grid, Button, SelectChangeEvent } from '@mui/material';
-
-import { PatientFormValues, Gender } from "../../types";
+import { TextField, Button } from '@mui/material';
+import { useForm, Controller } from 'react-hook-form';
+import { PatientFormValues, Gender } from '../../types';
 
 interface Props {
-  onCancel: () => void;
   onSubmit: (values: PatientFormValues) => void;
+  onCancel: () => void;
 }
 
-interface GenderOption{
-  value: Gender;
-  label: string;
-}
-
-const genderOptions: GenderOption[] = Object.values(Gender).map(v => ({
-  value: v, label: v.toString()
-}));
-
-const AddPatientForm = ({ onCancel, onSubmit }: Props) => {
-  const [name, setName] = useState('');
-  const [occupation, setOccupation] = useState('');
-  const [ssn, setSsn] = useState('');
-  const [dateOfBirth, setDateOfBirth] = useState('');
-  const [gender, setGender] = useState(Gender.Other);
-
-  const onGenderChange = (event: SelectChangeEvent<string>) => {
-    event.preventDefault();
-    if ( typeof event.target.value === "string") {
-      const value = event.target.value;
-      const gender = Object.values(Gender).find(g => g.toString() === value);
-      if (gender) {
-        setGender(gender);
-      }
-    }
-  };
-
-  const addPatient = (event: SyntheticEvent) => {
-    event.preventDefault();
-    onSubmit({
-      name,
-      occupation,
-      ssn,
-      dateOfBirth,
-      gender
-    });
-  };
+const AddPatientForm = ({ onSubmit, onCancel }: Props) => {
+  const { control, handleSubmit } = useForm<PatientFormValues>();
 
   return (
-    <div>
-      <form onSubmit={addPatient}>
-        <TextField
-          label="Name"
-          fullWidth 
-          value={name}
-          onChange={({ target }) => setName(target.value)}
-        />
-        <TextField
-          label="Social security number"
-          fullWidth
-          value={ssn}
-          onChange={({ target }) => setSsn(target.value)}
-        />
-        <TextField
-          label="Date of birth"
-          placeholder="YYYY-MM-DD"
-          fullWidth
-          value={dateOfBirth}
-          onChange={({ target }) => setDateOfBirth(target.value)}
-        />
-        <TextField
-          label="Occupation"
-          fullWidth
-          value={occupation}
-          onChange={({ target }) => setOccupation(target.value)}
-        />
-
-        <InputLabel style={{ marginTop: 20 }}>Gender</InputLabel>
-        <Select
-          label="Gender"
-          fullWidth
-          value={gender}
-          onChange={onGenderChange}
-        >
-        {genderOptions.map(option =>
-          <MenuItem
-            key={option.label}
-            value={option.value}
-          >
-            {option.label
-          }</MenuItem>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Controller
+        name="name"
+        control={control}
+        defaultValue=""
+        render={({ field }) => <TextField {...field} label="Name" fullWidth />}
+      />
+      <Controller
+        name="dateOfBirth"
+        control={control}
+        defaultValue=""
+        render={({ field }) => (
+          <TextField {...field} label="Date of Birth" fullWidth />
         )}
-        </Select>
-
-        <Grid>
-          <Grid item>
-            <Button
-              color="secondary"
-              variant="contained"
-              style={{ float: "left" }}
-              type="button"
-              onClick={onCancel}
-            >
-              Cancel
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button
-              style={{
-                float: "right",
-              }}
-              type="submit"
-              variant="contained"
-            >
-              Add
-            </Button>
-          </Grid>
-        </Grid>
-      </form>
-    </div>
+      />
+      <Controller
+        name="ssn"
+        control={control}
+        defaultValue=""
+        render={({ field }) => <TextField {...field} label="SSN" fullWidth />}
+      />
+      <Controller
+        name="occupation"
+        control={control}
+        defaultValue=""
+        render={({ field }) => (
+          <TextField {...field} label="Occupation" fullWidth />
+        )}
+      />
+      <Controller
+        name="gender"
+        control={control}
+        defaultValue={Gender.Other} // Use enum value here
+        render={({ field }) => (
+          <TextField {...field} label="Gender" fullWidth />
+        )}
+      />
+      <Button type="button" onClick={onCancel}>
+        Cancel
+      </Button>
+      <Button type="submit" variant="contained" color="primary">
+        Add
+      </Button>
+    </form>
   );
 };
 
