@@ -5,12 +5,10 @@ export enum Gender {
   Other = 'other',
 }
 
-interface BaseEntry {
-  id: string;
-  date: string;
-  description: string;
-  specialist: string;
-  diagnosisCodes?: string[];
+export interface Diagnosis {
+  code: string;
+  name: string;
+  latin?: string;
 }
 
 export enum HealthCheckRating {
@@ -18,6 +16,14 @@ export enum HealthCheckRating {
   "LowRisk" = 1,
   "HighRisk" = 2,
   "CriticalRisk" = 3
+}
+
+interface BaseEntry {
+  id: string;
+  date: string;
+  description: string;
+  specialist: string;
+  diagnosisCodes?: Array<Diagnosis['code']>;
 }
 
 export interface HealthCheckEntry extends BaseEntry {

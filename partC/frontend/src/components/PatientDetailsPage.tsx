@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { Typography } from "@mui/material";
-import { Male, Female, Transgender } from "@mui/icons-material";
+import { Typography, List, ListItem, ListItemText, Paper } from "@mui/material";
+import { Male, Female, Transgender, Favorite, LocalHospital, Work } from "@mui/icons-material";
 
-import { Patient, Gender } from "../types";
+import { Patient, Gender, Diagnosis, Entry } from "../types";
 import { apiBaseUrl } from "../constants";
+import diagnosesService from "../services/diagnoses";
 
 const PatientDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [patient, setPatient] = useState<Patient | null>(null);
+  const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -28,7 +30,17 @@ const PatientDetailsPage: React.FC = () => {
       }
     };
 
+    const fetchDiagnoses = async () => {
+      try {
+        const diagnosesData = await diagnosesService.getAll();
+        setDiagnoses(diagnosesData);
+      } catch (e: unknown) {
+        console.error("Failed to fetch diagnoses", e);
+      }
+    };
+
     void fetchPatientDetails();
+    void fetchDiagnoses();
   }, [id]);
 
   if (error) {
@@ -39,6 +51,19 @@ const PatientDetailsPage: React.FC = () => {
     return <div>Loading...</div>;
   }
 
+  const getEntryIcon = (type: Entry['type']) => {
+    switch (type) {
+      case "Hospital":
+        return <LocalHospital />;
+      case "OccupationalHealthcare":
+        return <Work />;
+      case "HealthCheck":
+        return <Favorite />;
+      default:
+        return null;
+    }
+  };
+
   const getGenderIcon = (gender: Gender) => {
     switch (gender) {
       case Gender.Male:
@@ -48,6 +73,11 @@ const PatientDetailsPage: React.FC = () => {
       default:
         return <Transgender />;
     }
+  };
+
+  const getDiagnosisName = (code: string): string => {
+    const diagnosis = diagnoses.find((d) => d.code === code);
+    return diagnosis ? diagnosis.name : "";
   };
 
   return (
@@ -64,10 +94,40 @@ const PatientDetailsPage: React.FC = () => {
         Entries
       </Typography>
       {patient.entries && patient.entries.length > 0 ? (
-        patient.entries.map((entry, index) => (
-          <div key={index}>
-            {/* Display entry details here */}
-          </div>
+        patient.entries.map((entry) => (
+          <Paper key={entry.id} style={{ padding: '1em', marginBottom: '1em' }}>
+            <Typography variant="subtitle1">
+              {entry.date} {getEntryIcon(entry.type)}
+            </Typography>
+            <Typography variant="body2">{entry.description}</Typography>
+            {entry.diagnosisCodes && entry.diagnosisCodes.length > 0 && (
+              <List>
+                {entry.diagnosisCodes.map((code) => (
+                  <ListItem key={code}>
+                    <ListItemText>
+                      {code} {getDiagnosisName(code)}
+                    </ListItemText>
+                  </ListItem>
+                ))}
+              </List>
+            )}
+            {}
+            {entry.type === "Hospital" && entry.discharge && (
+              <Typography variant="body2">
+                Discharged on {entry.discharge.date}: {entry.discharge.criteria}
+              </Typography>
+            )}
+            {entry.type === "OccupationalHealthcare" && entry.employerName && (
+              <Typography variant="body2">
+                Employer: {entry.employerName}
+              </Typography>
+            )}
+            {entry.type === "HealthCheck" && (
+              <Typography variant="body2">
+                Health Check Rating: {entry.healthCheckRating}
+              </Typography>
+            )}
+          </Paper>
         ))
       ) : (
         <Typography>No entries</Typography>
