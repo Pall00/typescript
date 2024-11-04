@@ -1,4 +1,3 @@
-import React from 'react';
 import { Modal, Alert } from '@mui/material';
 import AddPatientForm from './AddPatientForm';
 import { PatientFormValues } from '../../types';
